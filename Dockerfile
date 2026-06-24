@@ -1,21 +1,33 @@
-# Use an official Python runtime
-FROM python:3.11-slim
+# Use Ubuntu 22.04 base
+FROM ubuntu:22.04
 
-# Install system dependencies (including unzip)
-RUN apt-get update && apt-get install -y unzip
+# Avoid prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Set the working directory
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    unzip \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
-# Copy your zip file and requirements file
-COPY m.zip .
+# Clone your repository
+RUN git clone https://github.com/simpleoggggg/jutar .
 
-# Unzip the file and install requirements
-# Assuming requirements.txt is extracted from m.zip
-RUN unzip -o m.zip && pip install -r requirements.txt
+# Unzip the contents (adjust filename if necessary)
+# This assumes the zip is in the root after cloning
+RUN unzip -o jutar.zip || echo "No zip found, skipping unzip"
 
-# Copy the rest of your application code if needed
-COPY . .
+# Install requirements if they exist
+RUN if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
 
-# Set the command to run your app
-CMD ["python", "app.py"]
+# Expose port 5000
+EXPOSE 5000
+
+# Start command (adjust if your entry point is different)
+CMD ["python3", "app.py"]

@@ -1,33 +1,29 @@
 # Use Ubuntu 22.04 base
 FROM ubuntu:22.04
 
-# Avoid prompts during package installation
+# Avoid interaction prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# Update and install system dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     unzip \
-    curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Clone your repository
-RUN git clone https://github.com/simpleoggggg/jutar .
+# Copy all files from your repo to the container
+COPY . .
 
-# Unzip the contents (adjust filename if necessary)
-# This assumes the zip is in the root after cloning
-RUN unzip -o jutar.zip || echo "No zip found, skipping unzip"
+# Unzip the file and install requirements
+# The -o flag ensures it overwrites files if necessary
+RUN unzip -o m.zip && \
+    pip3 install -r requirements.txt --break-system-packages
 
-# Install requirements if they exist
-RUN if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
-
-# Expose port 5000
+# Expose port 5000 as requested
 EXPOSE 5000
 
-# Start command (adjust if your entry point is different)
+# Set the command to run your app
 CMD ["python3", "app.py"]
